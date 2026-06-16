@@ -1,13 +1,21 @@
+import math
 import os
+import random
 import sys
 import time
-import math
-import random
+
 import pygame as pg
 
 
 WIDTH, HEIGHT = 1100, 650
+DELTA = {
+    pg.K_UP:    (0, -5),
+    pg.K_DOWN:  (0, +5),
+    pg.K_LEFT:  (-5, 0),
+    pg.K_RIGHT: (+5, 0),
+}
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 
 def gameover(screen: pg.Surface) -> None:
     """
@@ -92,7 +100,7 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
         bb_img.set_colorkey((0, 0, 0))
         pg.draw.circle(bb_img, (255, 0, 0), (10 * r, 10 * r), 10 * r)
         bb_imgs.append(bb_img)
-    bb_accs = [a for a in range(1, 11)]
+    bb_accs = list(range(1, 11))
     return bb_imgs, bb_accs
 
 
@@ -110,14 +118,6 @@ def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
     if obj_rct.top < 0 or HEIGHT < obj_rct.bottom:
         tate = False
     return yoko, tate
-
-
-DELTA = {
-    pg.K_UP:    (0, -5),
-    pg.K_DOWN:  (0, +5),
-    pg.K_LEFT:  (-5, 0),
-    pg.K_RIGHT: (+5, 0),
-}
 
 
 def main():
@@ -167,7 +167,7 @@ def main():
         bb_rct.move_ip(avx, avy)
         yoko, tate = check_bound(bb_rct)
         if not yoko:
-            vx = -vx  # noqa: 追従モード時は跳ね返りで画面内に維持
+            vx = -vx
         if not tate:
             vy = -vy
         if kk_rct.colliderect(bb_rct):
