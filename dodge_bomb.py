@@ -36,6 +36,22 @@ def gameover(screen: pg.Surface) -> None:
     time.sleep(5)
 
 
+def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
+    """
+    サイズの異なる爆弾Surfaceのリストと加速度のリストを返す関数
+
+    戻り値：爆弾SurfaceリストとaccリストのTuple
+    """
+    bb_imgs = []
+    for r in range(1, 11):
+        bb_img = pg.Surface((20 * r, 20 * r))
+        bb_img.set_colorkey((0, 0, 0))
+        pg.draw.circle(bb_img, (255, 0, 0), (10 * r, 10 * r), 10 * r)
+        bb_imgs.append(bb_img)
+    bb_accs = [a for a in range(1, 11)]
+    return bb_imgs, bb_accs
+
+
 def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
     """
     オブジェクトのRectが画面内かどうかを判定する関数
@@ -68,9 +84,8 @@ def main():
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
 
-    bb_img = pg.Surface((20, 20))
-    bb_img.set_colorkey((0, 0, 0))
-    pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)
+    bb_imgs, bb_accs = init_bb_imgs()
+    bb_img = bb_imgs[0]
     bb_rct = bb_img.get_rect()
     bb_rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT)
     vx, vy = +5, +5
@@ -96,7 +111,13 @@ def main():
         if not tate:
             kk_rct.move_ip(0, -sum_mv[1])
 
-        bb_rct.move_ip(vx, vy)
+        idx = min(tmr // 500, 9)
+        bb_img = bb_imgs[idx]
+        bb_rct.width = bb_img.get_width()
+        bb_rct.height = bb_img.get_height()
+        avx = vx * bb_accs[idx]
+        avy = vy * bb_accs[idx]
+        bb_rct.move_ip(avx, avy)
         yoko, tate = check_bound(bb_rct)
         if not yoko:
             vx = -vx
