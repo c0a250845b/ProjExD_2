@@ -75,16 +75,17 @@ def get_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
     戻り値：移動量タプルをキー，rotozoomしたSurfaceを値とした辞書
     """
     base_img = pg.image.load("fig/3.png")
+    base_flipped = pg.transform.flip(base_img, True, False)  # 左向き→右向きに反転
     return {
         (0, 0):   pg.transform.rotozoom(base_img, 0, 0.9),
-        (+5, 0):  pg.transform.rotozoom(base_img, 0, 0.9),
-        (+5, -5): pg.transform.rotozoom(base_img, 45, 0.9),
+        (-5, 0):  pg.transform.rotozoom(base_img, 0, 0.9),
+        (-5, -5): pg.transform.rotozoom(base_img, 45, 0.9),
         (0, -5):  pg.transform.rotozoom(base_img, 90, 0.9),
-        (-5, -5): pg.transform.rotozoom(base_img, 135, 0.9),
-        (-5, 0):  pg.transform.flip(pg.transform.rotozoom(base_img, 0, 0.9), True, False),
-        (-5, +5): pg.transform.rotozoom(base_img, -135, 0.9),
+        (+5, -5): pg.transform.rotozoom(base_flipped, 45, 0.9),
+        (+5, 0):  pg.transform.rotozoom(base_flipped, 0, 0.9),
+        (+5, +5): pg.transform.rotozoom(base_flipped, -45, 0.9),
         (0, +5):  pg.transform.rotozoom(base_img, -90, 0.9),
-        (+5, +5): pg.transform.rotozoom(base_img, -45, 0.9),
+        (-5, +5): pg.transform.rotozoom(base_img, -45, 0.9),
     }
 
 
