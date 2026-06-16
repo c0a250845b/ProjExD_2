@@ -36,6 +36,26 @@ def gameover(screen: pg.Surface) -> None:
     time.sleep(5)
 
 
+def get_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
+    """
+    移動量タプルと対応するこうかとんSurfaceの辞書を返す関数
+
+    戻り値：移動量タプルをキー，rotozoomしたSurfaceを値とした辞書
+    """
+    base_img = pg.image.load("fig/3.png")
+    return {
+        (0, 0):   pg.transform.rotozoom(base_img, 0, 0.9),
+        (+5, 0):  pg.transform.rotozoom(base_img, 0, 0.9),
+        (+5, -5): pg.transform.rotozoom(base_img, 45, 0.9),
+        (0, -5):  pg.transform.rotozoom(base_img, 90, 0.9),
+        (-5, -5): pg.transform.rotozoom(base_img, 135, 0.9),
+        (-5, 0):  pg.transform.flip(pg.transform.rotozoom(base_img, 0, 0.9), True, False),
+        (-5, +5): pg.transform.rotozoom(base_img, -135, 0.9),
+        (0, +5):  pg.transform.rotozoom(base_img, -90, 0.9),
+        (+5, +5): pg.transform.rotozoom(base_img, -45, 0.9),
+    }
+
+
 def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     """
     サイズの異なる爆弾Surfaceのリストと加速度のリストを返す関数
@@ -80,7 +100,8 @@ def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("fig/pg_bg.jpg")
-    kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
+    kk_imgs = get_kk_imgs()
+    kk_img = kk_imgs[(0, 0)]
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
 
@@ -104,6 +125,7 @@ def main():
             if key_lst[key]:
                 sum_mv[0] += dx
                 sum_mv[1] += dy
+        kk_img = kk_imgs[tuple(sum_mv)]
         kk_rct.move_ip(sum_mv)
         yoko, tate = check_bound(kk_rct)
         if not yoko:
