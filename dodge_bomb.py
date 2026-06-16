@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import math
 import random
 import pygame as pg
 
@@ -34,6 +35,29 @@ def gameover(screen: pg.Surface) -> None:
 
     pg.display.update()
     time.sleep(5)
+
+
+def calc_orientation(
+    org: pg.Rect,
+    dst: pg.Rect,
+    current_xy: tuple[float, float],
+) -> tuple[float, float]:
+    """
+    爆弾からこうかとんへの方向ベクトルを計算して返す関数
+
+    引数：
+        org：爆弾Rect
+        dst：こうかとんRect
+        current_xy：現在の移動方向ベクトル
+    戻り値：正規化された方向ベクトル or 現在の方向ベクトル
+    """
+    dx = dst.centerx - org.centerx
+    dy = dst.centery - org.centery
+    norm = math.sqrt(dx ** 2 + dy ** 2)
+    if norm < 300:
+        return current_xy
+    scale = math.sqrt(50) / norm
+    return dx * scale, dy * scale
 
 
 def get_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
@@ -109,7 +133,7 @@ def main():
     bb_img = bb_imgs[0]
     bb_rct = bb_img.get_rect()
     bb_rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT)
-    vx, vy = +5, +5
+    vx, vy = +5.0, +5.0
 
     clock = pg.time.Clock()
     tmr = 0
@@ -137,12 +161,13 @@ def main():
         bb_img = bb_imgs[idx]
         bb_rct.width = bb_img.get_width()
         bb_rct.height = bb_img.get_height()
+        vx, vy = calc_orientation(bb_rct, kk_rct, (vx, vy))
         avx = vx * bb_accs[idx]
         avy = vy * bb_accs[idx]
         bb_rct.move_ip(avx, avy)
         yoko, tate = check_bound(bb_rct)
         if not yoko:
-            vx = -vx
+            vx = -vx  # noqa: 追従モード時は跳ね返りで画面内に維持
         if not tate:
             vy = -vy
         if kk_rct.colliderect(bb_rct):
