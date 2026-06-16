@@ -75,10 +75,11 @@ def get_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
     戻り値：移動量タプルをキー，rotozoomしたSurfaceを値とした辞書
     """
     base_img = pg.image.load("fig/3.png")
-    base_flipped = pg.transform.flip(base_img, True, False)  # 左向き→右向きに反転
+    base_flipped = pg.transform.flip(base_img, True, False)
+    left_img = pg.transform.rotozoom(base_img, 0, 0.9)
     return {
-        (0, 0):   pg.transform.rotozoom(base_img, 0, 0.9),
-        (-5, 0):  pg.transform.rotozoom(base_img, 0, 0.9),
+        (0, 0):   left_img,
+        (-5, 0):  left_img,
         (-5, -5): pg.transform.rotozoom(base_img, -45, 0.9),
         (0, -5):  pg.transform.rotozoom(base_img, -90, 0.9),
         (+5, -5): pg.transform.rotozoom(base_flipped, 45, 0.9),
@@ -152,10 +153,10 @@ def main():
                 sum_mv[1] += dy
         kk_img = kk_imgs[tuple(sum_mv)]
         kk_rct.move_ip(sum_mv)
-        yoko, tate = check_bound(kk_rct)
-        if not yoko:
+        kk_yoko, kk_tate = check_bound(kk_rct)
+        if not kk_yoko:
             kk_rct.move_ip(-sum_mv[0], 0)
-        if not tate:
+        if not kk_tate:
             kk_rct.move_ip(0, -sum_mv[1])
 
         idx = min(tmr // 500, 9)
@@ -163,14 +164,13 @@ def main():
         bb_rct.width = bb_img.get_width()
         bb_rct.height = bb_img.get_height()
         vx, vy = calc_orientation(bb_rct, kk_rct, (vx, vy))
-        avx = vx * bb_accs[idx]
-        avy = vy * bb_accs[idx]
-        bb_rct.move_ip(avx, avy)
-        yoko, tate = check_bound(bb_rct)
-        if not yoko:
+        bb_rct.move_ip(vx * bb_accs[idx], vy * bb_accs[idx])
+        bb_yoko, bb_tate = check_bound(bb_rct)
+        if not bb_yoko:
             vx = -vx
-        if not tate:
+        if not bb_tate:
             vy = -vy
+
         if kk_rct.colliderect(bb_rct):
             gameover(screen)
             return
