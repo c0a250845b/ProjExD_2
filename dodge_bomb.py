@@ -1,11 +1,40 @@
 import os
 import sys
+import time
 import random
 import pygame as pg
 
 
 WIDTH, HEIGHT = 1100, 650
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+def gameover(screen: pg.Surface) -> None:
+    """
+    ゲームオーバー画面を5秒間表示する関数
+
+    引数：スクリーンSurface
+    戻り値：なし
+    """
+    black_surf = pg.Surface((WIDTH, HEIGHT))
+    black_surf.set_alpha(128)
+    black_surf.fill((0, 0, 0))
+    screen.blit(black_surf, [0, 0])  # まず黒幕をscreenに貼り，その上に描画する
+
+    cry_img = pg.transform.rotozoom(pg.image.load("fig/8.png"), 0, 0.9)
+    font = pg.font.Font(None, 80)
+    go_surf = font.render("Game Over", True, (255, 255, 255))
+
+    go_x = (WIDTH - go_surf.get_width()) // 2
+    go_y = HEIGHT // 2 - go_surf.get_height() // 2
+    cry_y = go_y + (go_surf.get_height() - cry_img.get_height()) // 2
+
+    screen.blit(cry_img, (go_x - cry_img.get_width() - 10, cry_y))
+    screen.blit(cry_img, (go_x + go_surf.get_width() + 10, cry_y))
+    screen.blit(go_surf, (go_x, go_y))
+
+    pg.display.update()
+    time.sleep(5)
+
 
 def check_bound(obj_rct: pg.Rect) -> tuple[bool, bool]:
     """
@@ -74,6 +103,7 @@ def main():
         if not tate:
             vy = -vy
         if kk_rct.colliderect(bb_rct):
+            gameover(screen)
             return
 
         screen.blit(kk_img, kk_rct)
