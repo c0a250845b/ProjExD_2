@@ -160,15 +160,15 @@ def main():
 
         idx = min(tmr // 500, 9)
         bb_img = bb_imgs[idx]
-        bb_rct.width = bb_img.get_width()
-        bb_rct.height = bb_img.get_height()
+        bb_center = bb_rct.center
+        bb_rct.size = bb_img.get_size()
+        bb_rct.center = bb_center
         vx, vy = calc_orientation(bb_rct, kk_rct, (vx, vy))
-        bb_rct.move_ip(vx * bb_accs[idx], vy * bb_accs[idx])
+        avx, avy = vx * bb_accs[idx], vy * bb_accs[idx]
+        bb_rct.move_ip(avx, avy)
         bb_yoko, bb_tate = check_bound(bb_rct)
-        if not bb_yoko:
-            vx = -vx
-        if not bb_tate:
-            vy = -vy
+        if not bb_yoko or not bb_tate:
+            bb_rct.move_ip(-avx, -avy)
 
         if kk_rct.colliderect(bb_rct):
             gameover(screen)
