@@ -76,10 +76,9 @@ def get_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
     """
     base_img = pg.image.load("fig/3.png")
     base_flipped = pg.transform.flip(base_img, True, False)
-    left_img = pg.transform.rotozoom(base_img, 0, 0.9)
     return {
-        (0, 0):   left_img,
-        (-5, 0):  left_img,
+        (0, 0):   pg.transform.rotozoom(base_img, 0, 0.9),
+        (-5, 0):  pg.transform.rotozoom(base_img, 0, 0.9),
         (-5, -5): pg.transform.rotozoom(base_img, -45, 0.9),
         (0, -5):  pg.transform.rotozoom(base_img, -90, 0.9),
         (+5, -5): pg.transform.rotozoom(base_flipped, 45, 0.9),
